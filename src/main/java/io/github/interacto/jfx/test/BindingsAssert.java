@@ -63,16 +63,38 @@ public class BindingsAssert implements BindingsObserver {
 		bindings.clear();
 	}
 
+	private boolean isClassMatchesCommandType(final Class<?> cmdCl, final Map.Entry<Command, JfxWidgetBinding<?, ?, ?>> entry) {
+		return cmdCl.isInstance(entry.getKey());
+	}
+
 	public <C extends Command> CmdAssert<C> oneCmdProduced(final Class<C> clCmd) {
 		if(commands.size() != 1) {
 			throw Failures.instance().failure("We registered " + commands.size() + " produced commands instead of a single one: " +
 				getCommands());
 		}
-		if(!clCmd.isInstance(commands.get(0).getKey())) {
+		if(!isClassMatchesCommandType(clCmd, commands.get(0))) {
 			throw Failures.instance().failure("The produced command is of type " + commands.get(0).getClass().getName() +
 				" while a command of type " + clCmd.getName() + " is expected.");
 		}
 		return new CmdAssert<>((Map.Entry<C, JfxWidgetBinding<?, ?, ?>>) commands.get(0));
+	}
+
+	public <C extends Command> CmdAssert<C> oneCmdProducedAmong(final Class<C> clCmd) {
+		final var result = commands
+			.stream()
+			.filter(cmd -> isClassMatchesCommandType(clCmd, cmd))
+			.collect(Collectors.toList());
+
+		if(result.size() != 1) {
+			throw Failures.instance().failure("One command of type " + clCmd.getName() +
+				" expected, but " + result.size() + " found: " + result);
+		}
+
+		return new CmdAssert<>((Map.Entry<C, JfxWidgetBinding<?, ?, ?>>) result.get(0));
+	}
+
+	public ListAssert<CmdAssert<?>> listAssert() {
+		return AssertionsForInterfaceTypes.assertThat(commands.stream().map(cmd -> new CmdAssert<>(cmd)).collect(Collectors.toList()));
 	}
 
 	public <C extends Command> BindingsAssert oneCmdProduced(final Class<C> clCmd, final Consumer<C> cmdChecker) {
@@ -81,17 +103,12 @@ public class BindingsAssert implements BindingsObserver {
 		return this;
 	}
 
-	public ListAssert<CmdAssert<?>> cmdsProduced(final Consumer<List<Command>> cmdChecker) {
-		cmdChecker.accept(getCommands());
-		return AssertionsForInterfaceTypes.assertThat(commands.stream().map(cmd -> new CmdAssert<>(cmd)).collect(Collectors.toList()));
-	}
-
-	public ListAssert<CmdAssert<?>> cmdsProduced(final int nbCmds) {
+	public BindingsAssert cmdsProduced(final int nbCmds) {
 		if(commands.size() != nbCmds) {
 			throw Failures.instance().failure("We collected " + commands.size() + " produced commands instead of " +
 				commands.size() + ": " + getCommands());
 		}
-		return AssertionsForInterfaceTypes.assertThat(commands.stream().map(cmd -> new CmdAssert<>(cmd)).collect(Collectors.toList()));
+		return this;
 	}
 
 	public BindingsAssert noCmdProduced() {
