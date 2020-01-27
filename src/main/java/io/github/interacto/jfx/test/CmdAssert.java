@@ -17,6 +17,7 @@ package io.github.interacto.jfx.test;
 import io.github.interacto.command.Command;
 import io.github.interacto.jfx.binding.JfxWidgetBinding;
 import java.util.Map;
+import java.util.StringJoiner;
 import org.assertj.core.internal.Failures;
 
 public class CmdAssert<C extends Command> {
@@ -48,5 +49,12 @@ public class CmdAssert<C extends Command> {
 
 	public C getCommand() {
 		return command.getKey();
+	}
+
+	@Override
+	public String toString() {
+		return new StringJoiner(", ", CmdAssert.class.getSimpleName() + "[", "]")
+			.add("command=" + command)
+			.toString();
 	}
 }
