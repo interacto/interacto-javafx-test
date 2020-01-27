@@ -36,7 +36,7 @@ public class CmdAssert<C extends Command> {
 
 	public <C2 extends Command> CmdAssert<C2> ofType(final Class<C2> clCmd) {
 		if(!clCmd.isInstance(command.getKey())) {
-			throw Failures.instance().failure("The produced command is of type " + command.getClass().getName() +
+			throw Failures.instance().failure("The produced command is of type " + command.getKey().getClass().getName() +
 				" while a command of type " + clCmd.getName() + " is expected.");
 		}
 		return new CmdAssert<>(Map.entry((C2) command.getKey(), command.getValue()));
