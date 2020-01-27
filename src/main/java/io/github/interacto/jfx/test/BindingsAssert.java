@@ -65,7 +65,8 @@ public class BindingsAssert implements BindingsObserver {
 
 	public <C extends Command> CmdAssert<C> oneCmdProduced(final Class<C> clCmd) {
 		if(commands.size() != 1) {
-			throw Failures.instance().failure("We registered " + commands.size() + " produced commands instead of a single one.");
+			throw Failures.instance().failure("We registered " + commands.size() + " produced commands instead of a single one: " +
+				getCommands());
 		}
 		if(!clCmd.isInstance(commands.get(0).getKey())) {
 			throw Failures.instance().failure("The produced command is of type " + commands.get(0).getClass().getName() +
