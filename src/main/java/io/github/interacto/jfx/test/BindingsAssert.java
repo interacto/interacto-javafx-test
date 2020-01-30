@@ -15,8 +15,8 @@
 package io.github.interacto.jfx.test;
 
 import io.github.interacto.command.Command;
-import io.github.interacto.jfx.binding.JfxWidgetBinding;
 import io.github.interacto.jfx.binding.BindingsObserver;
+import io.github.interacto.jfx.binding.JfxWidgetBinding;
 import io.reactivex.disposables.Disposable;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -29,38 +29,22 @@ import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.assertj.core.api.ListAssert;
 import org.assertj.core.internal.Failures;
 
-public class BindingsAssert implements BindingsObserver {
+public class BindingsAssert {
 	private final Set<JfxWidgetBinding<?, ?, ?>> bindings;
 	private final List<Disposable> disposables;
 	private final List<Map.Entry<Command, JfxWidgetBinding<?, ?, ?>>> commands;
+	protected final BindingsObserver observer;
 
 	public BindingsAssert() {
 		super();
 		bindings = new HashSet<>();
 		disposables = new ArrayList<>();
 		commands = new ArrayList<>();
+		observer = new BindingsObserverImpl();
 	}
 
 	private List<Command> getCommands() {
 		return commands.stream().map(entry -> entry.getKey()).collect(Collectors.toList());
-	}
-
-	@Override
-	public void observeBinding(final JfxWidgetBinding<?, ?, ?> binding) {
-		if(binding == null) {
-			throw Failures.instance().failure("The given widget binding is null.");
-		}
-
-		bindings.add(binding);
-		disposables.add(binding.produces().subscribe(cmd -> commands.add(Map.entry(cmd, binding))));
-	}
-
-	@Override
-	public void clearObservedBindings() {
-		disposables.forEach(d -> d.dispose());
-		disposables.clear();
-		bindings.forEach(b -> b.uninstallBinding());
-		bindings.clear();
 	}
 
 	private boolean isClassMatchesCommandType(final Class<?> cmdCl, final Map.Entry<Command, JfxWidgetBinding<?, ?, ?>> entry) {
@@ -123,5 +107,25 @@ public class BindingsAssert implements BindingsObserver {
 			throw Failures.instance().failure("The number of existing bindings is " + bindings.size() + " instead of " + number + ".");
 		}
 		return this;
+	}
+
+	private class BindingsObserverImpl implements BindingsObserver {
+		@Override
+		public void observeBinding(final JfxWidgetBinding<?, ?, ?> binding) {
+			if(binding == null) {
+				throw Failures.instance().failure("The given widget binding is null.");
+			}
+
+			bindings.add(binding);
+			disposables.add(binding.produces().subscribe(cmd -> commands.add(Map.entry(cmd, binding))));
+		}
+
+		@Override
+		public void clearObservedBindings() {
+			disposables.forEach(d -> d.dispose());
+			disposables.clear();
+			bindings.forEach(b -> b.uninstallBinding());
+			bindings.clear();
+		}
 	}
 }

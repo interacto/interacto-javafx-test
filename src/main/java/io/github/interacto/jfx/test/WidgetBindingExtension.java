@@ -30,13 +30,13 @@ public class WidgetBindingExtension implements BeforeEachCallback, AfterEachCall
 	@Override
 	public void beforeEach(final ExtensionContext extCtx) {
 		bindingsAssert = new BindingsAssert();
-		Bindings.setBindingObserver(bindingsAssert);
+		Bindings.setBindingObserver(bindingsAssert.observer);
 	}
 
 	@Override
 	public void afterEach(final ExtensionContext extCtx) {
 		Bindings.setBindingObserver(null);
-		bindingsAssert.clearObservedBindings();
+		bindingsAssert.observer.clearObservedBindings();
 		bindingsAssert = null;
 		CommandsRegistry.getInstance().clear();
 		CommandsRegistry.setInstance(new CommandsRegistry());
