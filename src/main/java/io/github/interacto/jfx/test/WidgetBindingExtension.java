@@ -25,11 +25,11 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
 public class WidgetBindingExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
-	private BindingsAssert bindingsAssert;
+	private BindingsContext bindingsAssert;
 
 	@Override
 	public void beforeEach(final ExtensionContext extCtx) {
-		bindingsAssert = new BindingsAssert();
+		bindingsAssert = new BindingsContext();
 		Bindings.setBindingObserver(bindingsAssert.observer);
 	}
 

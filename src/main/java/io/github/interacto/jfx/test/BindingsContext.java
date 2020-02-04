@@ -29,13 +29,13 @@ import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.assertj.core.api.ListAssert;
 import org.assertj.core.internal.Failures;
 
-public class BindingsAssert {
+public class BindingsContext {
 	private final Set<JfxWidgetBinding<?, ?, ?>> bindings;
 	private final List<Disposable> disposables;
 	private final List<Map.Entry<Command, JfxWidgetBinding<?, ?, ?>>> commands;
 	protected final BindingsObserver observer;
 
-	public BindingsAssert() {
+	public BindingsContext() {
 		super();
 		bindings = new HashSet<>();
 		disposables = new ArrayList<>();
@@ -81,13 +81,13 @@ public class BindingsAssert {
 		return AssertionsForInterfaceTypes.assertThat(commands.stream().map(cmd -> new CmdAssert<>(cmd)).collect(Collectors.toList()));
 	}
 
-	public <C extends Command> BindingsAssert oneCmdProduced(final Class<C> clCmd, final Consumer<C> cmdChecker) {
+	public <C extends Command> BindingsContext oneCmdProduced(final Class<C> clCmd, final Consumer<C> cmdChecker) {
 		oneCmdProduced(clCmd);
 		cmdChecker.accept((C) commands.get(0).getKey());
 		return this;
 	}
 
-	public BindingsAssert cmdsProduced(final int nbCmds) {
+	public BindingsContext cmdsProduced(final int nbCmds) {
 		if(commands.size() != nbCmds) {
 			throw Failures.instance().failure("We collected " + commands.size() + " produced commands instead of " +
 				commands.size() + ": " + getCommands());
@@ -95,14 +95,14 @@ public class BindingsAssert {
 		return this;
 	}
 
-	public BindingsAssert noCmdProduced() {
+	public BindingsContext noCmdProduced() {
 		if(!commands.isEmpty()) {
 			throw Failures.instance().failure("We registered " + commands.size() + " produced commands instead of zero: " + getCommands());
 		}
 		return this;
 	}
 
-	public BindingsAssert hasBindings(final int number) {
+	public BindingsContext hasBindings(final int number) {
 		if(bindings.size() != number) {
 			throw Failures.instance().failure("The number of existing bindings is " + bindings.size() + " instead of " + number + ".");
 		}
