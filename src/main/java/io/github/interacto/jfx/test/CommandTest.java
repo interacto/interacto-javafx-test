@@ -15,11 +15,9 @@
 package io.github.interacto.jfx.test;
 
 import io.github.interacto.command.Command;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -70,9 +68,10 @@ public abstract class CommandTest<C extends Command> {
 		assertThat(cmd.canDo()).isTrue();
 	}
 
-	@Test
-	protected void testDo() {
-		canDoConfigurations().collect(Collectors.toList()).get(0).run();
+	@ParameterizedTest
+	@MethodSource("canDoConfigurations")
+	protected void testDo(final Runnable config) {
+		config.run();
 		cmd.doIt();
 		cmd.done();
 		nbExec = 1;
