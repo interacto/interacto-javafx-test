@@ -32,6 +32,8 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 		bundle = Mockito.mock(ResourceBundle.class);
 	}
 
+	protected abstract Runnable undoChecker();
+
 	@Test
 	protected void testUndo() {
 		canDoConfigurations().collect(Collectors.toList()).get(0).run();

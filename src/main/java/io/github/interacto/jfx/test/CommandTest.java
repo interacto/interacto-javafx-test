@@ -41,8 +41,6 @@ public abstract class CommandTest<C extends Command> {
 
 	protected abstract Runnable doChecker();
 
-	protected abstract Runnable undoChecker();
-
 	@BeforeEach
 	protected void setUpCommand() {
 		nbExec = 0;
