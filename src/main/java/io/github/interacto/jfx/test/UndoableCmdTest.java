@@ -52,7 +52,7 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 		cmd.redo();
 		cmd.undo();
 		nbExec = 2;
-		doChecker().run();
+		undoChecker().run();
 	}
 
 	@Test
