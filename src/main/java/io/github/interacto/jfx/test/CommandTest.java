@@ -30,14 +30,14 @@ public abstract class CommandTest<C extends Command> {
 	protected C cmd;
 	protected int nbExec;
 
-	protected Stream<Runnable> cannotDoConfigurations() {
+	protected Stream<Runnable> cannotDoFixtures() {
 		return Stream.of(() -> {
 			cmd = (C) Mockito.mock(Command.class);
 			Mockito.when(cmd.canDo()).thenReturn(false);
 		});
 	}
 
-	protected abstract Stream<Runnable> canDoConfigurations();
+	protected abstract Stream<Runnable> canDoFixtures();
 
 	protected abstract Runnable doChecker();
 
@@ -53,21 +53,21 @@ public abstract class CommandTest<C extends Command> {
 	}
 
 	@ParameterizedTest
-	@MethodSource("cannotDoConfigurations")
-	protected void testCannotDo(final Runnable config) {
-		config.run();
+	@MethodSource("cannotDoFixtures")
+	protected void testCannotDo(final Runnable fixture) {
+		fixture.run();
 		assertThat(cmd.canDo()).isFalse();
 	}
 
 	@ParameterizedTest
-	@MethodSource("canDoConfigurations")
-	protected void testCanDo(final Runnable config) {
-		config.run();
+	@MethodSource("canDoFixtures")
+	protected void testCanDo(final Runnable fixture) {
+		fixture.run();
 		assertThat(cmd.canDo()).isTrue();
 	}
 
 	@ParameterizedTest
-	@MethodSource("canDoConfigurations")
+	@MethodSource("canDoFixtures")
 	protected void testDo(final Runnable config) {
 		config.run();
 		cmd.doIt();

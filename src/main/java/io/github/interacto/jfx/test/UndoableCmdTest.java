@@ -36,7 +36,7 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 
 	@Test
 	protected void testUndo() {
-		canDoConfigurations().collect(Collectors.toList()).get(0).run();
+		canDoFixtures().collect(Collectors.toList()).get(0).run();
 		cmd.doIt();
 		cmd.done();
 		nbExec = 1;
@@ -46,7 +46,7 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 
 	@Test
 	protected void testRedo() {
-		canDoConfigurations().collect(Collectors.toList()).get(0).run();
+		canDoFixtures().collect(Collectors.toList()).get(0).run();
 		cmd.doIt();
 		cmd.done();
 		cmd.undo();
@@ -57,7 +57,7 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 
 	@Test
 	protected void testUndo2Times() {
-		canDoConfigurations().collect(Collectors.toList()).get(0).run();
+		canDoFixtures().collect(Collectors.toList()).get(0).run();
 		cmd.doIt();
 		cmd.done();
 		cmd.undo();
@@ -69,7 +69,7 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 
 	@Test
 	protected void testRedo2Times() {
-		canDoConfigurations().collect(Collectors.toList()).get(0).run();
+		canDoFixtures().collect(Collectors.toList()).get(0).run();
 		cmd.doIt();
 		cmd.done();
 		cmd.undo();
@@ -82,7 +82,7 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 
 	@Test
 	protected void testUndoName() {
-		canDoConfigurations().collect(Collectors.toList()).get(0).run();
+		canDoFixtures().collect(Collectors.toList()).get(0).run();
 		assertThat(cmd.getUndoName(bundle)).isNotEmpty();
 	}
 }
