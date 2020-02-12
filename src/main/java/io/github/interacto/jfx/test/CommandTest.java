@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +32,12 @@ public abstract class CommandTest<C extends Command> {
 	protected C cmd;
 	protected int nbExec;
 
-	protected abstract Stream<Runnable> cannotDoConfigurations();
+	protected Stream<Runnable> cannotDoConfigurations() {
+		return Stream.of(() -> {
+			cmd = (C) Mockito.mock(Command.class);
+			Mockito.when(cmd.canDo()).thenReturn(false);
+		});
+	}
 
 	protected abstract Stream<Runnable> canDoConfigurations();
 
