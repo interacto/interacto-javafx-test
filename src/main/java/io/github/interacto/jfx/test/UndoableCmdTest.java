@@ -16,12 +16,22 @@ package io.github.interacto.jfx.test;
 
 import io.github.interacto.command.Command;
 import io.github.interacto.undo.Undoable;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class UndoableCmdTest<C extends Command & Undoable> extends CommandTest<C> {
+	protected ResourceBundle bundle;
+
+	@BeforeEach
+	void setUpUndoableCmdTest() {
+		bundle = Mockito.mock(ResourceBundle.class);
+	}
+
 	@Test
 	protected void testUndo() {
 		canDoConfigurations().collect(Collectors.toList()).get(0).run();
@@ -71,6 +81,6 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 	@Test
 	protected void testUndoName() {
 		canDoConfigurations().collect(Collectors.toList()).get(0).run();
-		assertThat(cmd.getUndoName(null)).isNotEmpty();
+		assertThat(cmd.getUndoName(bundle)).isNotEmpty();
 	}
 }
