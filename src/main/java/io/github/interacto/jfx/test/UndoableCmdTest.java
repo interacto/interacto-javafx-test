@@ -17,13 +17,15 @@ package io.github.interacto.jfx.test;
 import io.github.interacto.command.Command;
 import io.github.interacto.undo.Undoable;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class UndoableCmdTest<C extends Command & Undoable> extends CommandTest<C> {
 	protected ResourceBundle bundle;
 
@@ -34,9 +36,10 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 
 	protected abstract Runnable undoChecker();
 
-	@Test
-	protected void testUndo() {
-		canDoFixtures().collect(Collectors.toList()).get(0).run();
+	@ParameterizedTest
+	@MethodSource("canDoFixtures")
+	protected void testUndo(final Runnable fixture) {
+		fixture.run();
 		cmd.doIt();
 		cmd.done();
 		nbExec = 1;
@@ -44,9 +47,10 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 		undoChecker().run();
 	}
 
-	@Test
-	protected void testRedo() {
-		canDoFixtures().collect(Collectors.toList()).get(0).run();
+	@ParameterizedTest
+	@MethodSource("canDoFixtures")
+	protected void testRedo(final Runnable fixture) {
+		fixture.run();
 		cmd.doIt();
 		cmd.done();
 		cmd.undo();
@@ -55,9 +59,10 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 		doChecker().run();
 	}
 
-	@Test
-	protected void testUndo2Times() {
-		canDoFixtures().collect(Collectors.toList()).get(0).run();
+	@ParameterizedTest
+	@MethodSource("canDoFixtures")
+	protected void testUndo2Times(final Runnable fixture) {
+		fixture.run();
 		cmd.doIt();
 		cmd.done();
 		cmd.undo();
@@ -67,9 +72,10 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 		undoChecker().run();
 	}
 
-	@Test
-	protected void testRedo2Times() {
-		canDoFixtures().collect(Collectors.toList()).get(0).run();
+	@ParameterizedTest
+	@MethodSource("canDoFixtures")
+	protected void testRedo2Times(final Runnable fixture) {
+		fixture.run();
 		cmd.doIt();
 		cmd.done();
 		cmd.undo();
@@ -80,9 +86,10 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 		doChecker().run();
 	}
 
-	@Test
-	protected void testUndoName() {
-		canDoFixtures().collect(Collectors.toList()).get(0).run();
+	@ParameterizedTest
+	@MethodSource("canDoFixtures")
+	protected void testUndoName(final Runnable fixture) {
+		fixture.run();
 		assertThat(cmd.getUndoName(bundle)).isNotEmpty();
 	}
 }
