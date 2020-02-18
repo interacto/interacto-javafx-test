@@ -48,15 +48,15 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 	}
 
 	@ParameterizedTest
-	@MethodSource("canDoFixtures")
-	protected void testRedo(final Runnable fixture) {
+	@MethodSource("doProvider")
+	protected void testRedo(final Runnable fixture, final Runnable oracle) {
 		fixture.run();
 		cmd.doIt();
 		cmd.done();
 		cmd.undo();
 		cmd.redo();
 		nbExec = 2;
-		doChecker().run();
+		oracle.run();
 	}
 
 	@ParameterizedTest
@@ -73,8 +73,8 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 	}
 
 	@ParameterizedTest
-	@MethodSource("canDoFixtures")
-	protected void testRedo2Times(final Runnable fixture) {
+	@MethodSource("doProvider")
+	protected void testRedo2Times(final Runnable fixture, final Runnable oracle) {
 		fixture.run();
 		cmd.doIt();
 		cmd.done();
@@ -83,7 +83,7 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 		cmd.undo();
 		cmd.redo();
 		nbExec = 3;
-		doChecker().run();
+		oracle.run();
 	}
 
 	@ParameterizedTest

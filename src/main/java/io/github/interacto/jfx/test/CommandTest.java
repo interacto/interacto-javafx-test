@@ -14,16 +14,21 @@
  */
 package io.github.interacto.jfx.test;
 
+import com.google.common.collect.Streams;
 import io.github.interacto.command.Command;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class CommandTest<C extends Command> {
@@ -39,7 +44,22 @@ public abstract class CommandTest<C extends Command> {
 
 	protected abstract Stream<Runnable> canDoFixtures();
 
-	protected abstract Runnable doChecker();
+	protected abstract Stream<Runnable> doCheckers();
+
+	protected Stream<Arguments> doProvider() {
+		final List<Runnable> canDos = canDoFixtures().collect(Collectors.toList());
+		final List<Runnable> oracles = doCheckers().collect(Collectors.toList());
+
+		if(canDos.size() == oracles.size()) {
+			return Streams.zip(canDos.stream(), oracles.stream(), (a, b) -> Arguments.of(a, b));
+		}
+		if(oracles.size() != 1) {
+			fail("Incorrect number of oracles: either the same number of cando fixtures or a single oracle");
+		}
+
+		final Runnable oracle = oracles.get(0);
+		return canDos.stream().map(cando -> Arguments.arguments(cando, oracle));
+	}
 
 	@BeforeEach
 	protected void setUpCommand() {
@@ -67,12 +87,12 @@ public abstract class CommandTest<C extends Command> {
 	}
 
 	@ParameterizedTest
-	@MethodSource("canDoFixtures")
-	protected void testDo(final Runnable config) {
-		config.run();
+	@MethodSource("doProvider")
+	protected void testDo(final Runnable fixture, final Runnable oracle) {
+		fixture.run();
 		cmd.doIt();
 		cmd.done();
 		nbExec = 1;
-		doChecker().run();
+		oracle.run();
 	}
 }
