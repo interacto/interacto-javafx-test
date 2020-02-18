@@ -14,16 +14,22 @@
  */
 package io.github.interacto.jfx.test;
 
+import com.google.common.collect.Streams;
 import io.github.interacto.command.Command;
 import io.github.interacto.undo.Undoable;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class UndoableCmdTest<C extends Command & Undoable> extends CommandTest<C> {
@@ -34,17 +40,32 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 		bundle = Mockito.mock(ResourceBundle.class);
 	}
 
-	protected abstract Runnable undoChecker();
+	protected abstract Stream<Runnable> undoCheckers();
+
+	protected Stream<Arguments> undoProvider() {
+		final List<Runnable> canDos = canDoFixtures().collect(Collectors.toList());
+		final List<Runnable> oracles = undoCheckers().collect(Collectors.toList());
+
+		if(canDos.size() == oracles.size()) {
+			return Streams.zip(canDos.stream(), oracles.stream(), (a, b) -> Arguments.of(a, b));
+		}
+		if(oracles.size() != 1) {
+			fail("Incorrect number of undo oracles: either the same number of cando fixtures or a single oracle");
+		}
+
+		final Runnable oracle = oracles.get(0);
+		return canDos.stream().map(cando -> Arguments.arguments(cando, oracle));
+	}
 
 	@ParameterizedTest
-	@MethodSource("canDoFixtures")
-	protected void testUndo(final Runnable fixture) {
+	@MethodSource("undoProvider")
+	protected void testUndo(final Runnable fixture, final Runnable undoOracle) {
 		fixture.run();
 		cmd.doIt();
 		cmd.done();
 		nbExec = 1;
 		cmd.undo();
-		undoChecker().run();
+		undoOracle.run();
 	}
 
 	@ParameterizedTest
@@ -60,8 +81,8 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 	}
 
 	@ParameterizedTest
-	@MethodSource("canDoFixtures")
-	protected void testUndo2Times(final Runnable fixture) {
+	@MethodSource("undoProvider")
+	protected void testUndo2Times(final Runnable fixture, final Runnable undoOracle) {
 		fixture.run();
 		cmd.doIt();
 		cmd.done();
@@ -69,7 +90,7 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 		cmd.redo();
 		cmd.undo();
 		nbExec = 2;
-		undoChecker().run();
+		undoOracle.run();
 	}
 
 	@ParameterizedTest
