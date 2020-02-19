@@ -42,6 +42,9 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 
 	protected abstract Stream<Runnable> undoCheckers();
 
+	protected void commonUndoCheckers() {
+	}
+
 	protected Stream<Arguments> undoProvider() {
 		final List<Runnable> canDos = canDoFixtures().collect(Collectors.toList());
 		final List<Runnable> oracles = undoCheckers().collect(Collectors.toList());
@@ -60,29 +63,34 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 	@ParameterizedTest
 	@MethodSource("undoProvider")
 	protected void testUndo(final Runnable fixture, final Runnable undoOracle) {
+		commonCanDoFixture();
 		fixture.run();
 		cmd.doIt();
 		cmd.done();
 		nbExec = 1;
 		cmd.undo();
+		commonUndoCheckers();
 		undoOracle.run();
 	}
 
 	@ParameterizedTest
 	@MethodSource("doProvider")
 	protected void testRedo(final Runnable fixture, final Runnable oracle) {
+		commonCanDoFixture();
 		fixture.run();
 		cmd.doIt();
 		cmd.done();
 		cmd.undo();
 		cmd.redo();
 		nbExec = 2;
+		commonDoCheckers();
 		oracle.run();
 	}
 
 	@ParameterizedTest
 	@MethodSource("undoProvider")
 	protected void testUndo2Times(final Runnable fixture, final Runnable undoOracle) {
+		commonCanDoFixture();
 		fixture.run();
 		cmd.doIt();
 		cmd.done();
@@ -90,12 +98,14 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 		cmd.redo();
 		cmd.undo();
 		nbExec = 2;
+		commonUndoCheckers();
 		undoOracle.run();
 	}
 
 	@ParameterizedTest
 	@MethodSource("doProvider")
 	protected void testRedo2Times(final Runnable fixture, final Runnable oracle) {
+		commonCanDoFixture();
 		fixture.run();
 		cmd.doIt();
 		cmd.done();
@@ -104,12 +114,14 @@ public abstract class UndoableCmdTest<C extends Command & Undoable> extends Comm
 		cmd.undo();
 		cmd.redo();
 		nbExec = 3;
+		commonDoCheckers();
 		oracle.run();
 	}
 
 	@ParameterizedTest
 	@MethodSource("canDoFixtures")
 	protected void testUndoName(final Runnable fixture) {
+		commonCanDoFixture();
 		fixture.run();
 		assertThat(cmd.getUndoName(bundle)).isNotEmpty();
 	}

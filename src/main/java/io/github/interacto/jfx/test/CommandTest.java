@@ -42,9 +42,18 @@ public abstract class CommandTest<C extends Command> {
 		});
 	}
 
+	protected void commonCannotDoFixtures() {
+	}
+
 	protected abstract Stream<Runnable> canDoFixtures();
 
+	protected void commonCanDoFixture() {
+	}
+
 	protected abstract Stream<Runnable> doCheckers();
+
+	protected void commonDoCheckers() {
+	}
 
 	protected Stream<Arguments> doProvider() {
 		final List<Runnable> canDos = canDoFixtures().collect(Collectors.toList());
@@ -75,6 +84,7 @@ public abstract class CommandTest<C extends Command> {
 	@ParameterizedTest
 	@MethodSource("cannotDoFixtures")
 	protected void testCannotDo(final Runnable fixture) {
+		commonCannotDoFixtures();
 		fixture.run();
 		assertThat(cmd.canDo()).isFalse();
 		assertThat(cmd.hadEffect()).isFalse();
@@ -83,6 +93,7 @@ public abstract class CommandTest<C extends Command> {
 	@ParameterizedTest
 	@MethodSource("canDoFixtures")
 	protected void testCanDo(final Runnable fixture) {
+		commonCanDoFixture();
 		fixture.run();
 		assertThat(cmd.canDo()).isTrue();
 		assertThat(cmd.hadEffect()).isFalse();
@@ -91,10 +102,12 @@ public abstract class CommandTest<C extends Command> {
 	@ParameterizedTest
 	@MethodSource("doProvider")
 	protected void testDo(final Runnable fixture, final Runnable oracle) {
+		commonCanDoFixture();
 		fixture.run();
 		cmd.doIt();
 		cmd.done();
 		nbExec = 1;
+		commonDoCheckers();
 		oracle.run();
 	}
 }
