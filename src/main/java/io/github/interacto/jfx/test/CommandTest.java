@@ -77,6 +77,7 @@ public abstract class CommandTest<C extends Command> {
 	protected void testCannotDo(final Runnable fixture) {
 		fixture.run();
 		assertThat(cmd.canDo()).isFalse();
+		assertThat(cmd.hadEffect()).isFalse();
 	}
 
 	@ParameterizedTest
@@ -84,6 +85,7 @@ public abstract class CommandTest<C extends Command> {
 	protected void testCanDo(final Runnable fixture) {
 		fixture.run();
 		assertThat(cmd.canDo()).isTrue();
+		assertThat(cmd.hadEffect()).isFalse();
 	}
 
 	@ParameterizedTest
