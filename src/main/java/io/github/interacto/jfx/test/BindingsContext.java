@@ -90,7 +90,7 @@ public class BindingsContext {
 	public BindingsContext cmdsProduced(final int nbCmds) {
 		if(commands.size() != nbCmds) {
 			throw Failures.instance().failure("We collected " + commands.size() + " produced commands instead of " +
-				commands.size() + ": " + getCommands());
+				nbCmds + ": " + getCommands());
 		}
 		return this;
 	}
