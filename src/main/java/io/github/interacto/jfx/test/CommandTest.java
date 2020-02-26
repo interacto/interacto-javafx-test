@@ -39,6 +39,8 @@ public abstract class CommandTest<C extends Command> {
 		return Stream.of(() -> {
 			cmd = (C) Mockito.mock(Command.class);
 			Mockito.when(cmd.canDo()).thenReturn(false);
+			Mockito.when(cmd.hadEffect()).thenReturn(false);
+			Mockito.when(cmd.getStatus()).thenReturn(Command.CmdStatus.CREATED);
 		});
 	}
 
@@ -88,6 +90,7 @@ public abstract class CommandTest<C extends Command> {
 		fixture.run();
 		assertThat(cmd.canDo()).isFalse();
 		assertThat(cmd.hadEffect()).isFalse();
+		assertThat(cmd.getStatus()).isEqualTo(Command.CmdStatus.CREATED);
 	}
 
 	@ParameterizedTest
@@ -97,6 +100,7 @@ public abstract class CommandTest<C extends Command> {
 		fixture.run();
 		assertThat(cmd.canDo()).isTrue();
 		assertThat(cmd.hadEffect()).isFalse();
+		assertThat(cmd.getStatus()).isEqualTo(Command.CmdStatus.CREATED);
 	}
 
 	@ParameterizedTest
@@ -105,9 +109,13 @@ public abstract class CommandTest<C extends Command> {
 		commonCanDoFixture();
 		fixture.run();
 		cmd.doIt();
+		assertThat(cmd.getStatus()).isEqualTo(Command.CmdStatus.EXECUTED);
 		cmd.done();
 		nbExec = 1;
 		commonDoCheckers();
 		oracle.run();
+		assertThat(cmd.getStatus()).isEqualTo(Command.CmdStatus.DONE);
+		cmd.flush();
+		assertThat(cmd.getStatus()).isEqualTo(Command.CmdStatus.FLUSHED);
 	}
 }
