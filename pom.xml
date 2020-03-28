@@ -265,7 +265,7 @@
         <dependency>
             <groupId>io.github.interacto</groupId>
             <artifactId>interacto-javafx</artifactId>
-            <version>${project.version}</version>
+            <version>4.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
